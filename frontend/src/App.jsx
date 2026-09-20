@@ -11,6 +11,7 @@ import FreelanceGigs from './pages/FreelanceGigs'
 import GigDetail from './pages/GigDetail'
 import PostGig from './pages/PostGig'
 import EmployerHub from './pages/EmployerHub'
+import MyApplications from './pages/MyApplications'
 import PostJob from './pages/PostJob'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -41,6 +42,14 @@ export default function App() {
                 element={
                   <ProtectedRoute role="employer">
                     <EmployerHub />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/my-applications"
+                element={
+                  <ProtectedRoute role="jobseeker">
+                    <MyApplications />
                   </ProtectedRoute>
                 }
               />

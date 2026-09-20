@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class Job(models.Model):
@@ -78,6 +79,7 @@ class Application(models.Model):
     applicant = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='applications')
     cover_letter = models.TextField(blank=True)
     resume_url = models.URLField(blank=True)
+    portfolio_url = models.URLField(blank=True)
     stage = models.CharField(max_length=20, choices=Stage.choices, default=Stage.APPLIED)
     applied_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -88,3 +90,35 @@ class Application(models.Model):
 
     def __str__(self):
         return f'{self.applicant} -> {self.job} [{self.stage}]'
+
+
+class JobSeekerRating(models.Model):
+    application = models.OneToOneField(Application, on_delete=models.CASCADE, related_name='rating')
+    employer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='jobseeker_ratings_given')
+    jobseeker = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='jobseeker_ratings_received')
+    rating = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    review = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(fields=['employer', 'application'], name='unique_employer_application_rating'),
+        ]
+
+    def __str__(self):
+        return f'{self.jobseeker} rated {self.rating}/5 by {self.employer}'
+
+
+class ApplicationMessage(models.Model):
+    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='messages')
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='application_messages')
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f'Message from {self.sender} on application {self.application_id}'

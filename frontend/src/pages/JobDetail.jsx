@@ -8,6 +8,8 @@ export default function JobDetail() {
   const { user } = useAuth()
   const [job, setJob] = useState(null)
   const [coverLetter, setCoverLetter] = useState('')
+  const [resumeUrl, setResumeUrl] = useState('')
+  const [portfolioUrl, setPortfolioUrl] = useState('')
   const [status, setStatus] = useState('idle') // idle | applying | applied | error
   const [errorMsg, setErrorMsg] = useState('')
 
@@ -20,7 +22,7 @@ export default function JobDetail() {
     setStatus('applying')
     setErrorMsg('')
     try {
-      await applyToJob(id, { cover_letter: coverLetter })
+      await applyToJob(id, { cover_letter: coverLetter, resume_url: resumeUrl, portfolio_url: portfolioUrl })
       setStatus('applied')
     } catch (err) {
       setStatus('error')
@@ -96,6 +98,20 @@ export default function JobDetail() {
                 onChange={(e) => setCoverLetter(e.target.value)}
                 rows={4}
                 placeholder="Short cover note (optional)"
+                className="w-full p-space-sm rounded-lg bg-surface-container-low font-body-sm text-body-sm outline-none focus:ring-2 focus:ring-primary"
+              />
+              <input
+                type="url"
+                value={resumeUrl}
+                onChange={(e) => setResumeUrl(e.target.value)}
+                placeholder="CV or resume link (optional)"
+                className="w-full p-space-sm rounded-lg bg-surface-container-low font-body-sm text-body-sm outline-none focus:ring-2 focus:ring-primary"
+              />
+              <input
+                type="url"
+                value={portfolioUrl}
+                onChange={(e) => setPortfolioUrl(e.target.value)}
+                placeholder="Portfolio link (optional)"
                 className="w-full p-space-sm rounded-lg bg-surface-container-low font-body-sm text-body-sm outline-none focus:ring-2 focus:ring-primary"
               />
               {status === 'error' && <p className="font-body-sm text-error">{errorMsg}</p>}

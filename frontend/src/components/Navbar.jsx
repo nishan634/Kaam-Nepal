@@ -50,6 +50,11 @@ export default function Navbar() {
               Hiring Hub
             </NavLink>
           )}
+          {user?.role === 'jobseeker' && (
+            <NavLink to="/my-applications" className={navLinkClass}>
+              My Applications
+            </NavLink>
+          )}
         </nav>
 
         <div className="flex items-center gap-space-md">

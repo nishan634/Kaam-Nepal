@@ -3,8 +3,8 @@ from rest_framework import viewsets, permissions, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import Job, Application
-from .serializers import JobSerializer, ApplicationSerializer
+from .models import Job, Application, JobSeekerRating, ApplicationMessage
+from .serializers import JobSerializer, ApplicationSerializer, JobSeekerRatingSerializer, ApplicationMessageSerializer
 
 
 class IsEmployerOrReadOnly(permissions.BasePermission):
@@ -50,6 +50,7 @@ class JobViewSet(viewsets.ModelViewSet):
             applicant=request.user,
             cover_letter=request.data.get('cover_letter', ''),
             resume_url=request.data.get('resume_url', ''),
+            portfolio_url=request.data.get('portfolio_url', ''),
         )
         return Response(ApplicationSerializer(application).data, status=status.HTTP_201_CREATED)
 
@@ -81,3 +82,39 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         if instance.job.employer_id != request.user.id:
             return Response({'detail': 'Not allowed.'}, status=status.HTTP_403_FORBIDDEN)
         return super().partial_update(request, *args, **kwargs)
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def rate(self, request, pk=None):
+        application = self.get_object()
+        if request.user.role != 'employer' or application.job.employer_id != request.user.id:
+            return Response({'detail': 'Only the job employer can rate this applicant.'}, status=status.HTTP_403_FORBIDDEN)
+        if application.stage != Application.Stage.HIRED:
+            return Response({'detail': 'You can rate a job seeker after marking the application as hired.'}, status=status.HTTP_400_BAD_REQUEST)
+        if hasattr(application, 'rating'):
+            return Response({'detail': 'This job seeker has already been rated for this application.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = JobSeekerRatingSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        rating = serializer.save(
+            application=application,
+            employer=request.user,
+            jobseeker=application.applicant,
+        )
+        return Response(JobSeekerRatingSerializer(rating).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['get', 'post'], permission_classes=[permissions.IsAuthenticated])
+    def messages(self, request, pk=None):
+        application = self.get_object()
+        is_employer = application.job.employer_id == request.user.id and request.user.role == 'employer'
+        is_applicant = application.applicant_id == request.user.id and request.user.role == 'jobseeker'
+        if not (is_employer or is_applicant):
+            return Response({'detail': 'You are not a participant in this application.'}, status=status.HTTP_403_FORBIDDEN)
+
+        if request.method == 'GET':
+            messages = application.messages.select_related('sender').all()
+            return Response(ApplicationMessageSerializer(messages, many=True).data)
+
+        serializer = ApplicationMessageSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        message = serializer.save(application=application, sender=request.user)
+        return Response(ApplicationMessageSerializer(message).data, status=status.HTTP_201_CREATED)

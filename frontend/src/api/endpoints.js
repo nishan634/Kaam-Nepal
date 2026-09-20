@@ -15,6 +15,9 @@ export const fetchJobApplications = (id) => client.get(`/jobs/${id}/applications
 export const fetchMyApplications = () => client.get('/jobs/applications/')
 export const updateApplicationStage = (id, stage) =>
   client.patch(`/jobs/applications/${id}/`, { stage })
+export const rateJobSeeker = (id, payload) => client.post(`/jobs/applications/${id}/rate/`, payload)
+export const fetchApplicationMessages = (id) => client.get(`/jobs/applications/${id}/messages/`)
+export const sendApplicationMessage = (id, body) => client.post(`/jobs/applications/${id}/messages/`, { body })
 
 // --- Gigs ---
 export const fetchGigs = (params) => client.get('/gigs/', { params })
