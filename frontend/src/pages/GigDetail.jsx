@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { fetchGig, proposeToGig } from '../api/endpoints'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function GigDetail() {
   const { id } = useParams()
   const { user } = useAuth()
+  const { t } = useLanguage()
   const [gig, setGig] = useState(null)
   const [message, setMessage] = useState('')
   const [budget, setBudget] = useState('')
@@ -26,7 +28,7 @@ export default function GigDetail() {
     }
   }
 
-  if (!gig) return <div className="pt-32 text-center font-body-md text-on-surface-variant">Loading gig...</div>
+  if (!gig) return <div className="pt-32 text-center font-body-md text-on-surface-variant">{t('loadingGigs')}</div>
 
   return (
     <div className="max-w-5xl mx-auto px-margin md:px-margin-md lg:px-margin-lg py-space-xl">
@@ -81,7 +83,7 @@ export default function GigDetail() {
               to="/login"
               className="w-full inline-flex items-center justify-center bg-secondary text-on-secondary py-3 rounded-lg font-display text-label-lg shadow-sm hover:bg-secondary-container transition-colors"
             >
-              Log in to Contact
+                {t('loginToApply')}
             </Link>
           )}
 
@@ -91,7 +93,7 @@ export default function GigDetail() {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={4}
-                placeholder="Describe what you need..."
+                placeholder={t('proposalMessage')}
                 className="w-full p-space-sm rounded-lg bg-surface-container-low font-body-sm text-body-sm outline-none focus:ring-2 focus:ring-primary"
                 required
               />
@@ -99,7 +101,7 @@ export default function GigDetail() {
                 value={budget}
                 onChange={(e) => setBudget(e.target.value)}
                 type="number"
-                placeholder="Your budget (NPR, optional)"
+                placeholder={t('budget')}
                 className="w-full p-space-sm rounded-lg bg-surface-container-low font-body-sm text-body-sm outline-none focus:ring-2 focus:ring-primary"
               />
               <button
@@ -107,7 +109,7 @@ export default function GigDetail() {
                 disabled={status === 'sending'}
                 className="w-full inline-flex items-center justify-center bg-secondary text-on-secondary py-3 rounded-lg font-display text-label-lg shadow-sm hover:bg-secondary-container transition-colors disabled:opacity-60"
               >
-                {status === 'sending' ? 'Sending...' : 'Send Proposal'}
+                {status === 'sending' ? t('sending') : t('sendProposal')}
               </button>
               {status === 'error' && <p className="font-body-sm text-error">Could not send proposal.</p>}
             </form>
@@ -116,7 +118,7 @@ export default function GigDetail() {
           {status === 'sent' && (
             <div className="flex items-center gap-1 text-[#059669] font-display text-label-lg">
               <span className="material-symbols-outlined">check_circle</span>
-              Proposal sent!
+              {t('proposalSent')}
             </div>
           )}
         </div>

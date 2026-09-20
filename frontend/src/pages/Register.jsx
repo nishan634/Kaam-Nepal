@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function Register() {
   const { register } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const [form, setForm] = useState({
     username: '', email: '', password: '', first_name: '', last_name: '',
@@ -23,7 +25,17 @@ export default function Register() {
       navigate(user.role === 'employer' ? '/employer/hub' : '/find-jobs')
     } catch (err) {
       const data = err.response?.data
-      setError(data ? Object.values(data).flat().join(' ') : 'Registration failed.')
+      if (data) {
+        const messages = Object.entries(data).flatMap(([field, value]) => {
+          const text = Array.isArray(value) ? value.join(' ') : String(value)
+          return field === 'non_field_errors' ? text : `${field}: ${text}`
+        })
+        setError(messages.join(' '))
+      } else if (err.request && !err.response) {
+        setError('Could not connect to the server. Make sure the backend is running.')
+      } else {
+        setError('Registration failed. Please check the form and try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -32,9 +44,9 @@ export default function Register() {
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-margin py-space-xl">
       <div className="w-full max-w-lg bg-surface-container-lowest rounded-xl p-space-lg card-elevated">
-        <h1 className="font-display text-headline-md text-primary mb-1">Join KAAM Nepal</h1>
+        <h1 className="font-display text-headline-md text-primary mb-1">{t('joinKaam')}</h1>
         <p className="font-body-sm text-body-sm text-on-surface-variant mb-space-lg">
-          Create an account as a job seeker/freelancer or as an employer.
+          {t('registerIntro')}
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-space-md">
@@ -60,23 +72,23 @@ export default function Register() {
           </div>
 
           <div className="grid grid-cols-2 gap-space-md">
-            <Field label="First Name">
+            <Field label={t('firstName')}>
               <input required value={form.first_name} onChange={update('first_name')} className="input" />
             </Field>
-            <Field label="Last Name">
+            <Field label={t('lastName')}>
               <input required value={form.last_name} onChange={update('last_name')} className="input" />
             </Field>
           </div>
-          <Field label="Username">
+          <Field label={t('username')}>
             <input required value={form.username} onChange={update('username')} className="input" />
           </Field>
           <Field label="Email">
             <input required type="email" value={form.email} onChange={update('email')} className="input" />
           </Field>
-          <Field label="Password">
+          <Field label={t('password')}>
             <input required type="password" value={form.password} onChange={update('password')} className="input" />
           </Field>
-          <Field label="District">
+          <Field label={t('district')}>
             <select value={form.district} onChange={update('district')} className="input">
               <option value="kathmandu">Kathmandu</option>
               <option value="pokhara">Pokhara</option>
@@ -86,7 +98,7 @@ export default function Register() {
             </select>
           </Field>
           {form.role === 'jobseeker' && (
-            <Field label="Skills (comma-separated)">
+            <Field label={t('skills')}>
               <input value={form.skills} onChange={update('skills')} className="input" placeholder="Electrician, React, Cooking..." />
             </Field>
           )}
@@ -97,14 +109,14 @@ export default function Register() {
             disabled={loading}
             className="h-12 bg-primary-container text-on-primary rounded-lg font-display text-label-lg hover:bg-primary transition-colors disabled:opacity-60"
           >
-            {loading ? 'Creating account...' : 'Create Account'}
+            {loading ? t('creatingAccount') : t('createAccountButton')}
           </button>
         </form>
 
         <p className="font-body-sm text-body-sm text-on-surface-variant mt-space-md text-center">
-          Already have an account?{' '}
+          {t('alreadyAccount')}{' '}
           <Link to="/login" className="text-primary-container font-semibold hover:underline">
-            Log in
+            {t('login')}
           </Link>
         </p>
       </div>

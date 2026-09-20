@@ -48,6 +48,8 @@ client.interceptors.response.use(
         localStorage.removeItem('kaam_access')
         localStorage.removeItem('kaam_refresh')
         localStorage.removeItem('kaam_user')
+        queue.forEach((p) => p.reject(refreshError))
+        queue = []
         window.location.href = '/login'
         return Promise.reject(refreshError)
       } finally {

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useLanguage } from '../context/LanguageContext'
 
 const sectorLabels = {
   trade: 'Skilled Trades & Construction',
@@ -27,6 +28,9 @@ function formatSalary(job) {
 }
 
 export default function JobCard({ job }) {
+  const { t } = useLanguage()
+  const translatedSectors = { trade: 'skilledTrades', tech: 'techRemote', hospitality: 'hospitality', logistics: 'logistics', health: 'healthcare', other: 'other' }
+  const translatedTypes = { full_time: 'fullTime', part_time: 'partTime', daily_wage: 'dailyWage', contract: 'contract', remote: 'remote' }
   return (
     <Link
       to={`/jobs/${job.id}`}
@@ -67,7 +71,7 @@ export default function JobCard({ job }) {
             {job.is_remote ? 'Remote' : job.district}
           </span>
           <span className="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface font-display text-label-sm">
-            {jobTypeLabels[job.job_type] || job.job_type}
+            {t(translatedTypes[job.job_type] || job.job_type)}
           </span>
           {job.is_verified_escrow && (
             <span className="inline-flex items-center gap-1 bg-verified/10 text-[#059669] px-2 py-0.5 rounded-full font-display text-label-sm font-bold">
@@ -77,7 +81,7 @@ export default function JobCard({ job }) {
           )}
         </div>
         <span className="font-display text-label-sm text-on-surface-variant hidden sm:inline">
-          {sectorLabels[job.sector]}
+          {t(translatedSectors[job.sector] || job.sector)}
         </span>
       </div>
     </Link>

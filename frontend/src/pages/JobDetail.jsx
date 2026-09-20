@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { fetchJob, applyToJob } from '../api/endpoints'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function JobDetail() {
   const { id } = useParams()
   const { user } = useAuth()
+  const { t } = useLanguage()
   const [job, setJob] = useState(null)
   const [coverLetter, setCoverLetter] = useState('')
   const [resumeUrl, setResumeUrl] = useState('')
@@ -31,7 +33,7 @@ export default function JobDetail() {
   }
 
   if (!job) {
-    return <div className="pt-32 text-center font-body-md text-on-surface-variant">Loading job...</div>
+    return <div className="pt-32 text-center font-body-md text-on-surface-variant">{t('loadingJobs')}</div>
   }
 
   return (
@@ -62,16 +64,46 @@ export default function JobDetail() {
             ))}
           </div>
 
-          <h2 className="font-display text-title-md text-primary mt-space-lg mb-space-sm">Job Description</h2>
+          <h2 className="font-display text-title-md text-primary mt-space-lg mb-space-sm">{t('jobDescription')}</h2>
           <p className="font-body-md text-body-md text-on-surface-variant whitespace-pre-line">{job.description}</p>
+
+          <h2 className="font-display text-title-md text-primary mt-space-lg mb-space-sm">{t('jobLocation')}</h2>
+          <p className="font-body-md text-body-md text-on-surface-variant mb-space-sm">
+            {job.location_address || (job.is_remote ? 'Remote / Overseas' : job.district)}
+          </p>
+          {job.latitude && job.longitude ? (
+            <>
+              <div className="overflow-hidden rounded-lg border border-outline-variant aspect-[16/9]">
+                <iframe
+                  title="Job location map"
+                  className="w-full h-full border-0"
+                  loading="lazy"
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(job.longitude) - 0.02}%2C${Number(job.latitude) - 0.02}%2C${Number(job.longitude) + 0.02}%2C${Number(job.latitude) + 0.02}&layer=mapnik&marker=${job.latitude}%2C${job.longitude}`}
+                />
+              </div>
+              <a
+                href={`https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=%3B${job.latitude}%2C${job.longitude}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center mt-space-sm text-primary-container font-display text-label-md hover:underline"
+              >
+                {t('getDirections')}
+                <span className="material-symbols-outlined text-[16px] ml-1">directions</span>
+              </a>
+            </>
+          ) : (
+            <p className="font-body-sm text-body-sm text-on-surface-variant bg-surface-container-low rounded-lg p-space-sm">
+              Map coordinates are not available for this job yet.
+            </p>
+          )}
         </div>
 
         <div className="bg-surface-container-lowest rounded-xl p-space-lg card-elevated h-fit sticky top-28">
-          <p className="font-display text-label-md text-on-surface-variant uppercase tracking-wider">Pay</p>
+          <p className="font-display text-label-md text-on-surface-variant uppercase tracking-wider">{t('pay')}</p>
           <p className="font-display text-headline-sm text-primary mb-space-md">
             {job.salary_min || job.salary_max
               ? `NPR ${(job.salary_min || 0).toLocaleString()}–${(job.salary_max || 0).toLocaleString()}`
-              : 'Negotiable'}{' '}
+              : t('negotiable')}{' '}
             <span className="font-body-sm text-body-sm text-on-surface-variant">/ {job.salary_period}</span>
           </p>
 
@@ -87,7 +119,7 @@ export default function JobDetail() {
               to="/login"
               className="w-full inline-flex items-center justify-center bg-secondary text-on-secondary py-3 rounded-lg font-display text-label-lg shadow-[0_2px_8px_-2px_rgba(183,16,42,0.4)] hover:bg-secondary-container transition-colors"
             >
-              Log in to Apply
+              {t('loginToApply')}
             </Link>
           )}
 
@@ -97,21 +129,21 @@ export default function JobDetail() {
                 value={coverLetter}
                 onChange={(e) => setCoverLetter(e.target.value)}
                 rows={4}
-                placeholder="Short cover note (optional)"
+                placeholder={t('coverNote')}
                 className="w-full p-space-sm rounded-lg bg-surface-container-low font-body-sm text-body-sm outline-none focus:ring-2 focus:ring-primary"
               />
               <input
                 type="url"
                 value={resumeUrl}
                 onChange={(e) => setResumeUrl(e.target.value)}
-                placeholder="CV or resume link (optional)"
+                placeholder={t('cvLink')}
                 className="w-full p-space-sm rounded-lg bg-surface-container-low font-body-sm text-body-sm outline-none focus:ring-2 focus:ring-primary"
               />
               <input
                 type="url"
                 value={portfolioUrl}
                 onChange={(e) => setPortfolioUrl(e.target.value)}
-                placeholder="Portfolio link (optional)"
+                placeholder={t('portfolioLink')}
                 className="w-full p-space-sm rounded-lg bg-surface-container-low font-body-sm text-body-sm outline-none focus:ring-2 focus:ring-primary"
               />
               {status === 'error' && <p className="font-body-sm text-error">{errorMsg}</p>}
@@ -120,7 +152,7 @@ export default function JobDetail() {
                 disabled={status === 'applying'}
                 className="w-full inline-flex items-center justify-center bg-secondary text-on-secondary py-3 rounded-lg font-display text-label-lg shadow-[0_2px_8px_-2px_rgba(183,16,42,0.4)] hover:bg-secondary-container transition-colors disabled:opacity-60"
               >
-                {status === 'applying' ? 'Submitting...' : 'Apply Now'}
+                {status === 'applying' ? t('submitting') : t('applyNow')}
               </button>
             </form>
           )}
@@ -128,7 +160,7 @@ export default function JobDetail() {
           {status === 'applied' && (
             <div className="flex items-center gap-1 text-[#059669] font-display text-label-lg">
               <span className="material-symbols-outlined">check_circle</span>
-              Application submitted!
+              {t('applicationSubmitted')}
             </div>
           )}
 

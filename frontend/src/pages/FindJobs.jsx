@@ -2,23 +2,18 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { fetchJobs } from '../api/endpoints'
 import JobCard from '../components/JobCard'
+import { useLanguage } from '../context/LanguageContext'
 
 const sectors = [
-  { value: '', label: 'All Sectors' },
-  { value: 'trade', label: 'Skilled Trades & Construction' },
-  { value: 'tech', label: 'Tech, Remote & IT' },
-  { value: 'hospitality', label: 'Hospitality & Culinary' },
-  { value: 'logistics', label: 'Transport & Logistics' },
-  { value: 'health', label: 'Healthcare & Diagnostics' },
+  { value: '', key: 'allSectors' }, { value: 'trade', key: 'skilledTrades' },
+  { value: 'tech', key: 'techRemote' }, { value: 'hospitality', key: 'hospitality' },
+  { value: 'logistics', key: 'logistics' }, { value: 'health', key: 'healthcare' },
 ]
 
 const jobTypes = [
-  { value: '', label: 'All Types' },
-  { value: 'full_time', label: 'Full-time' },
-  { value: 'part_time', label: 'Part-time' },
-  { value: 'daily_wage', label: 'Daily Wage' },
-  { value: 'contract', label: 'Contract' },
-  { value: 'remote', label: 'Remote' },
+  { value: '', key: 'allTypes' }, { value: 'full_time', key: 'fullTime' },
+  { value: 'part_time', key: 'partTime' }, { value: 'daily_wage', key: 'dailyWage' },
+  { value: 'contract', key: 'contract' }, { value: 'remote', key: 'remote' },
 ]
 
 export default function FindJobs() {
@@ -30,6 +25,7 @@ export default function FindJobs() {
   const [sector, setSector] = useState(searchParams.get('sector') || '')
   const [jobType, setJobType] = useState(searchParams.get('job_type') || '')
   const [ordering, setOrdering] = useState('-created_at')
+  const { t } = useLanguage()
 
   useEffect(() => {
     setLoading(true)
@@ -71,7 +67,7 @@ export default function FindJobs() {
             >
               {sectors.map((s) => (
                 <option key={s.value} value={s.value}>
-                  {s.label}
+                  {t(s.key)}
                 </option>
               ))}
             </select>
@@ -82,9 +78,9 @@ export default function FindJobs() {
               onChange={(e) => setJobType(e.target.value)}
               className="w-full h-12 px-space-md bg-surface-container-low rounded-lg font-display text-label-md outline-none cursor-pointer"
             >
-              {jobTypes.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
+              {jobTypes.map((type) => (
+                <option key={type.value} value={type.value}>
+                {t(type.key)}
                 </option>
               ))}
             </select>
@@ -93,7 +89,7 @@ export default function FindJobs() {
             type="submit"
             className="lg:col-span-2 h-12 px-space-md bg-primary-container hover:bg-primary text-on-primary rounded-lg font-display text-label-lg flex items-center justify-center gap-1 shadow-sm transition-all"
           >
-            Search
+            {t('searchJobs')}
             <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
           </button>
         </form>
@@ -103,13 +99,13 @@ export default function FindJobs() {
         <div className="flex items-center justify-between bg-surface-container-lowest p-space-md rounded-xl shadow-sm mb-space-md">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-display text-headline-sm text-primary">Job Openings</h1>
+              <h1 className="font-display text-headline-sm text-primary">{t('jobOpenings')}</h1>
               <span className="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface font-display text-label-sm">
-                {count} Openings
+                {count} {t('openings')}
               </span>
             </div>
             <p className="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
-              Verified local employers, daily gigs &amp; remote contracts
+              {t('verifiedJobs')}
             </p>
           </div>
           <select
@@ -117,16 +113,16 @@ export default function FindJobs() {
             onChange={(e) => setOrdering(e.target.value)}
             className="bg-surface-container-low font-display text-label-md py-1.5 px-2.5 rounded-md outline-none cursor-pointer"
           >
-            <option value="-created_at">Newest First</option>
-            <option value="-salary_max">Highest Pay</option>
+            <option value="-created_at">{t('newestFirst')}</option>
+            <option value="-salary_max">{t('highestPay')}</option>
           </select>
         </div>
 
         {loading ? (
-          <p className="font-body-md text-on-surface-variant">Loading jobs...</p>
+          <p className="font-body-md text-on-surface-variant">{t('loadingJobs')}</p>
         ) : jobs.length === 0 ? (
           <div className="bg-surface-container-lowest border border-dashed border-outline-variant rounded-lg p-space-xl text-center font-body-md text-on-surface-variant">
-            No jobs match your filters yet. Try clearing filters, or seed demo data on the backend
+            {t('noJobs')} Try clearing filters, or seed demo data on the backend
             with <code>python manage.py seed_demo</code>.
           </div>
         ) : (

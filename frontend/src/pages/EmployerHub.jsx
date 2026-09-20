@@ -2,18 +2,16 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { fetchHiringDashboard, updateApplicationStage, rateJobSeeker, fetchApplicationMessages, sendApplicationMessage } from '../api/endpoints'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 
 const stages = [
-  { key: 'applied', label: 'Applied' },
-  { key: 'shortlisted', label: 'Shortlisted' },
-  { key: 'interview', label: 'Interview' },
-  { key: 'offered', label: 'Offered' },
-  { key: 'hired', label: 'Hired' },
-  { key: 'rejected', label: 'Rejected' },
+  { key: 'applied' }, { key: 'shortlisted' }, { key: 'interview' },
+  { key: 'offered' }, { key: 'hired' }, { key: 'rejected' },
 ]
 
 export default function EmployerHub() {
   const { user } = useAuth()
+  const { t } = useLanguage()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [ratingApp, setRatingApp] = useState(null)
@@ -108,16 +106,16 @@ export default function EmployerHub() {
   }
 
   if (loading || !data) {
-    return <div className="pt-32 text-center font-body-md text-on-surface-variant">Loading hiring hub...</div>
+    return <div className="pt-32 text-center font-body-md text-on-surface-variant">{t('loadingHub')}</div>
   }
 
   return (
     <div className="max-w-7xl mx-auto px-margin md:px-margin-md lg:px-margin-lg py-space-xl">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-md mb-space-lg">
         <div>
-          <h1 className="font-display text-headline-md text-primary">Employer Hiring Hub</h1>
+          <h1 className="font-display text-headline-md text-primary">{t('hiringHub')}</h1>
           <p className="font-body-sm text-body-sm text-on-surface-variant">
-            Manage your job posts and move applicants through your pipeline.
+            {t('managePipeline')}
           </p>
         </div>
         <Link
@@ -125,7 +123,7 @@ export default function EmployerHub() {
           className="inline-flex items-center gap-1 bg-secondary text-on-secondary px-space-md py-2.5 rounded-lg font-display text-label-lg shadow-[0_2px_8px_-2px_rgba(183,16,42,0.4)] hover:bg-secondary-container transition-colors"
         >
           <span className="material-symbols-outlined text-[18px]">add</span>
-          Post a Job
+          {t('postJob')}
         </Link>
       </div>
 
@@ -135,12 +133,12 @@ export default function EmployerHub() {
         <StatCard label="Total Applicants" value={data.total_applicants} icon="groups" />
       </div>
 
-      <h2 className="font-display text-title-md text-primary mb-space-sm">Applicant Pipeline (ATS)</h2>
+      <h2 className="font-display text-title-md text-primary mb-space-sm">{t('applicantPipeline')}</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-gutter">
         {stages.map((stage) => (
           <div key={stage.key} className="bg-surface-container-low rounded-xl p-space-sm min-h-[200px]">
             <div className="flex items-center justify-between mb-space-sm px-space-xs">
-              <h3 className="font-display text-label-lg text-on-surface">{stage.label}</h3>
+              <h3 className="font-display text-label-lg text-on-surface">{t(stage.key)}</h3>
               <span className="px-2 py-0.5 rounded-full bg-surface-container-lowest text-on-surface-variant font-display text-label-sm">
                 {data.pipeline[stage.key]?.length || 0}
               </span>
@@ -161,7 +159,7 @@ export default function EmployerHub() {
                   >
                     {stages.map((s) => (
                       <option key={s.key} value={s.key}>
-                        Move to {s.label}
+                        Move to {t(s.key)}
                       </option>
                     ))}
                   </select>
@@ -170,7 +168,7 @@ export default function EmployerHub() {
                     onClick={() => setDetailApp(app)}
                     className="w-full mt-space-sm py-1.5 rounded-md bg-surface-container-low text-primary font-display text-label-sm hover:bg-surface-container-high transition-colors"
                   >
-                    View applicant details
+                    {t('viewApplicant')}
                   </button>
                   <button
                     type="button"
@@ -178,7 +176,7 @@ export default function EmployerHub() {
                     className="w-full mt-space-sm py-1.5 rounded-md bg-secondary text-on-secondary font-display text-label-sm hover:bg-secondary-container transition-colors"
                   >
                     <span className="material-symbols-outlined align-middle text-[15px] mr-1">chat</span>
-                    Chat with applicant
+                    {t('chatApplicant')}
                   </button>
                   {app.stage === 'hired' && !app.rating && (
                     <button
@@ -186,7 +184,7 @@ export default function EmployerHub() {
                       onClick={() => setRatingApp(app)}
                       className="w-full mt-space-sm py-1.5 rounded-md bg-primary-container text-on-primary font-display text-label-sm hover:bg-primary transition-colors"
                     >
-                      Rate job seeker
+                      {t('rateSeeker')}
                     </button>
                   )}
                   {app.rating && (
@@ -201,11 +199,11 @@ export default function EmployerHub() {
         ))}
       </div>
 
-      <h2 className="font-display text-title-md text-primary mt-space-xl mb-space-sm">Your Job Posts</h2>
+      <h2 className="font-display text-title-md text-primary mt-space-xl mb-space-sm">{t('yourJobPosts')}</h2>
       <div className="flex flex-col gap-space-sm">
         {data.jobs.length === 0 && (
           <p className="font-body-sm text-body-sm text-on-surface-variant">
-            You haven't posted any jobs yet.
+            {t('noJobPosts')}
           </p>
         )}
         {data.jobs.map((job) => (
@@ -235,7 +233,7 @@ export default function EmployerHub() {
       {ratingApp && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-space-md">
           <form onSubmit={submitRating} className="w-full max-w-md bg-surface-container-lowest rounded-xl p-space-lg shadow-xl">
-            <h2 className="font-display text-title-md text-primary mb-space-md">Rate job seeker</h2>
+            <h2 className="font-display text-title-md text-primary mb-space-md">Give job seeker feedback</h2>
             <label className="flex flex-col gap-1 mb-space-sm">
               <span className="font-display text-label-md text-on-surface-variant">Rating</span>
               <select value={ratingValue} onChange={(e) => setRatingValue(e.target.value)} className="w-full p-space-sm rounded-lg bg-surface-container-low">
@@ -246,7 +244,7 @@ export default function EmployerHub() {
               value={ratingReview}
               onChange={(e) => setRatingReview(e.target.value)}
               rows={4}
-              placeholder="Optional review"
+              placeholder="Feedback about this job seeker's work (optional)"
               className="w-full p-space-sm rounded-lg bg-surface-container-low font-body-sm text-body-sm outline-none focus:ring-2 focus:ring-primary"
             />
             {ratingError && <p className="mt-space-sm font-body-sm text-error">{ratingError}</p>}

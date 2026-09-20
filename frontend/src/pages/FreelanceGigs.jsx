@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { fetchGigs } from '../api/endpoints'
 import GigCard from '../components/GigCard'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 
 const categories = [
   { value: '', label: 'All Categories' },
@@ -19,6 +20,7 @@ export default function FreelanceGigs() {
   const [category, setCategory] = useState('')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
+  const { t } = useLanguage()
 
   useEffect(() => {
     setLoading(true)
@@ -33,7 +35,7 @@ export default function FreelanceGigs() {
     <div className="max-w-7xl mx-auto px-margin md:px-margin-md lg:px-margin-lg py-space-xl">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-md mb-space-lg">
         <div>
-          <h1 className="font-display text-headline-md text-primary">Freelance & Trade Services</h1>
+          <h1 className="font-display text-headline-md text-primary">{t('freelanceServices')}</h1>
           <p className="font-body-sm text-body-sm text-on-surface-variant">
             Hire vetted freelancers, artisans &amp; tradespeople directly — no middlemen.
           </p>
@@ -57,7 +59,7 @@ export default function FreelanceGigs() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search gigs, e.g. 'React website', 'wiring repair'..."
+            placeholder={t('searchGigs')}
             className="w-full h-12 pl-10 pr-4 bg-surface-container-low rounded-lg font-body-md text-body-md outline-none"
           />
         </div>
@@ -75,7 +77,7 @@ export default function FreelanceGigs() {
       </div>
 
       {loading ? (
-        <p className="font-body-md text-on-surface-variant">Loading gigs...</p>
+        <p className="font-body-md text-on-surface-variant">{t('loadingGigs')}</p>
       ) : gigs.length === 0 ? (
         <div className="bg-surface-container-lowest border border-dashed border-outline-variant rounded-lg p-space-xl text-center font-body-md text-on-surface-variant">
           No gigs found. Try a different search, or seed demo data with{' '}

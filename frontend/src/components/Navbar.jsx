@@ -1,6 +1,7 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 
 const navLinkClass = ({ isActive }) =>
   `font-display text-label-lg py-1.5 px-2 transition-colors ${
@@ -11,6 +12,7 @@ const navLinkClass = ({ isActive }) =>
 
 export default function Navbar() {
   const { user, logout } = useAuth()
+  const { language, setLanguage, t } = useLanguage()
   const navigate = useNavigate()
   const [lang, setLang] = useState('EN')
 
@@ -29,48 +31,48 @@ export default function Navbar() {
           <div className="hidden xl:flex items-center gap-space-xs bg-surface-container-low px-space-sm py-1.5 rounded-lg text-on-surface-variant">
             <span className="material-symbols-outlined text-primary-container text-[18px]">location_on</span>
             <select className="bg-transparent font-display text-label-md text-on-surface outline-none cursor-pointer pr-space-xs">
-              <option>All Nepal (नेपाल भर)</option>
-              <option>Kathmandu (काठमाडौं)</option>
-              <option>Pokhara (पोखरा)</option>
-              <option>Lalitpur (ललितपुर)</option>
-              <option>Remote / Overseas</option>
+              <option>{t('allNepal')}</option>
+              <option>{t('kathmandu')}</option>
+              <option>{t('pokhara')}</option>
+              <option>{t('lalitpur')}</option>
+              <option>{t('remote')}</option>
             </select>
           </div>
         </div>
 
         <nav className="hidden lg:flex items-center gap-space-md">
           <NavLink to="/find-jobs" className={navLinkClass}>
-            Find Jobs
+            {t('findJobs')}
           </NavLink>
           <NavLink to="/freelance" className={navLinkClass}>
-            Freelance Services
+            {t('freelance')}
           </NavLink>
           {user?.role === 'employer' && (
             <NavLink to="/employer/hub" className={navLinkClass}>
-              Hiring Hub
+              {t('hiringHub')}
             </NavLink>
           )}
           {user?.role === 'jobseeker' && (
             <NavLink to="/my-applications" className={navLinkClass}>
-              My Applications
+              {t('myApplications')}
             </NavLink>
           )}
         </nav>
 
         <div className="flex items-center gap-space-md">
           <div className="hidden md:inline-flex items-center bg-surface-container-low p-1 rounded-full">
-            {['EN', 'नेपाली'].map((l) => (
+            {[['en', 'EN'], ['ne', 'नेपाली']].map(([value, label]) => (
               <button
-                key={l}
-                onClick={() => setLang(l)}
+                key={value}
+                onClick={() => setLanguage(value)}
                 type="button"
                 className={`px-2.5 py-1 rounded-full font-display text-label-sm ${
-                  lang === l
+                  language === value
                     ? 'bg-primary-container text-on-primary font-bold shadow-[0_1px_4px_rgba(15,41,66,0.1)]'
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                {l}
+                {label}
               </button>
             ))}
           </div>
@@ -80,7 +82,7 @@ export default function Navbar() {
               to="/employer/post-job"
               className="hidden sm:inline-flex items-center justify-center font-display text-label-lg bg-secondary text-on-secondary px-space-md py-2.5 rounded-lg shadow-[0_2px_8px_-2px_rgba(183,16,42,0.4)] hover:bg-secondary-container transition-colors"
             >
-              Post a Job
+              {t('postJob')}
             </Link>
           )}
 
@@ -95,7 +97,7 @@ export default function Navbar() {
                   navigate('/')
                 }}
                 className="p-2 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors"
-                title="Log out"
+                title={t('logout')}
               >
                 <span className="material-symbols-outlined text-[22px]">logout</span>
               </button>
@@ -109,13 +111,13 @@ export default function Navbar() {
                 to="/login"
                 className="font-display text-label-lg text-on-surface-variant hover:text-on-surface px-2"
               >
-                Log in
+                {t('login')}
               </Link>
               <Link
                 to="/register"
                 className="inline-flex items-center justify-center font-display text-label-lg bg-primary-container text-on-primary px-space-md py-2.5 rounded-lg shadow-sm hover:bg-primary transition-colors"
               >
-                Sign up
+                {t('signup')}
               </Link>
             </div>
           )}

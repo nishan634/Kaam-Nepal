@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useLanguage } from '../context/LanguageContext'
 
 const categoryLabels = {
   design: 'Design & Creative',
@@ -10,6 +11,7 @@ const categoryLabels = {
 }
 
 export default function GigCard({ gig }) {
+  const { t } = useLanguage()
   return (
     <Link
       to={`/gigs/${gig.id}`}
@@ -23,7 +25,7 @@ export default function GigCard({ gig }) {
           <p className="font-display text-label-lg text-on-surface">
             {gig.freelancer_detail?.first_name || gig.freelancer_detail?.username}
           </p>
-          <p className="font-body-sm text-body-sm text-on-surface-variant">{categoryLabels[gig.category]}</p>
+          <p className="font-body-sm text-body-sm text-on-surface-variant">{t(gig.category) || categoryLabels[gig.category]}</p>
         </div>
         {gig.is_verified && (
           <span className="ml-auto material-symbols-outlined text-verified text-[18px]" title="Verified">

@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createJob } from '../api/endpoints'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function PostJob() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [form, setForm] = useState({
     title: '', company_name: '', description: '', sector: 'trade', job_type: 'full_time',
     district: 'kathmandu', is_remote: false, salary_min: '', salary_max: '',
-    salary_period: 'monthly', skills_required: '', is_verified_escrow: false,
+    salary_period: 'monthly', skills_required: '', location_address: '', latitude: '', longitude: '', is_verified_escrow: false,
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -26,6 +28,8 @@ export default function PostJob() {
         ...form,
         salary_min: form.salary_min ? Number(form.salary_min) : null,
         salary_max: form.salary_max ? Number(form.salary_max) : null,
+        latitude: form.latitude ? Number(form.latitude) : null,
+        longitude: form.longitude ? Number(form.longitude) : null,
       }
       const { data } = await createJob(payload)
       navigate(`/jobs/${data.id}`)
@@ -38,19 +42,30 @@ export default function PostJob() {
 
   return (
     <div className="max-w-2xl mx-auto px-margin py-space-xl">
-      <h1 className="font-display text-headline-md text-primary mb-space-md">Post a Job Vacancy</h1>
+      <h1 className="font-display text-headline-md text-primary mb-space-md">{t('postVacancy')}</h1>
       <form onSubmit={submit} className="bg-surface-container-lowest rounded-xl p-space-lg card-elevated flex flex-col gap-space-md">
-        <Field label="Job Title">
+        <Field label={t('jobTitle')}>
           <input required value={form.title} onChange={update('title')} className="input" placeholder="Site Electrician" />
         </Field>
-        <Field label="Company Name">
+        <Field label={t('companyName')}>
           <input value={form.company_name} onChange={update('company_name')} className="input" placeholder="Himalayan Treks Pvt. Ltd." />
         </Field>
-        <Field label="Description">
+        <Field label={t('description')}>
           <textarea required rows={5} value={form.description} onChange={update('description')} className="input" />
         </Field>
+        <Field label={t('workLocation')}>
+          <input value={form.location_address} onChange={update('location_address')} className="input" placeholder="Patan Industrial Estate, Lalitpur" />
+        </Field>
         <div className="grid grid-cols-2 gap-space-md">
-          <Field label="Sector">
+          <Field label="Latitude (optional)">
+            <input type="number" step="any" min="-90" max="90" value={form.latitude} onChange={update('latitude')} className="input" placeholder="27.7172" />
+          </Field>
+          <Field label="Longitude (optional)">
+            <input type="number" step="any" min="-180" max="180" value={form.longitude} onChange={update('longitude')} className="input" placeholder="85.3240" />
+          </Field>
+        </div>
+        <div className="grid grid-cols-2 gap-space-md">
+          <Field label={t('category')}>
             <select value={form.sector} onChange={update('sector')} className="input">
               <option value="trade">Skilled Trades & Construction</option>
               <option value="tech">Tech, Remote & IT</option>
@@ -60,7 +75,7 @@ export default function PostJob() {
               <option value="other">Other</option>
             </select>
           </Field>
-          <Field label="Job Type">
+          <Field label={t('jobType') || 'Job Type'}>
             <select value={form.job_type} onChange={update('job_type')} className="input">
               <option value="full_time">Full-time</option>
               <option value="part_time">Part-time</option>
@@ -71,7 +86,7 @@ export default function PostJob() {
           </Field>
         </div>
         <div className="grid grid-cols-2 gap-space-md">
-          <Field label="District">
+          <Field label={t('district')}>
             <select value={form.district} onChange={update('district')} className="input">
               <option value="kathmandu">Kathmandu</option>
               <option value="pokhara">Pokhara</option>
@@ -97,7 +112,7 @@ export default function PostJob() {
             <input type="number" value={form.salary_max} onChange={update('salary_max')} className="input" />
           </Field>
         </div>
-        <Field label="Skills Required (comma-separated)">
+        <Field label={t('skills')}>
           <input value={form.skills_required} onChange={update('skills_required')} className="input" placeholder="Electrician, Wiring, Safety Certified" />
         </Field>
         <div className="flex items-center gap-space-lg">
@@ -116,7 +131,7 @@ export default function PostJob() {
           disabled={loading}
           className="bg-secondary text-on-secondary py-3 rounded-lg font-display text-label-lg shadow-[0_2px_8px_-2px_rgba(183,16,42,0.4)] hover:bg-secondary-container transition-colors disabled:opacity-60"
         >
-          {loading ? 'Publishing...' : 'Publish Job'}
+          {loading ? t('publishing') : t('publishJob')}
         </button>
       </form>
       <style>{`.input { width:100%; padding: 0.75rem 1rem; border-radius: 0.5rem; background:#eff4ff; outline:none; font-family:Inter,sans-serif; } .input:focus { box-shadow: 0 0 0 2px #0f2942; }`}</style>

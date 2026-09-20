@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function Login() {
   const { login } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const location = useLocation()
   const [username, setUsername] = useState('')
@@ -20,7 +22,14 @@ export default function Login() {
       const redirectTo = location.state?.from || (user.role === 'employer' ? '/employer/hub' : '/find-jobs')
       navigate(redirectTo)
     } catch (err) {
-      setError('Invalid username or password.')
+      const data = err.response?.data
+      if (data?.detail) {
+        setError(data.detail)
+      } else if (err.request && !err.response) {
+        setError('Could not connect to the server. Make sure the backend is running.')
+      } else {
+        setError('Login failed. Please check your username and password.')
+      }
     } finally {
       setLoading(false)
     }
@@ -29,20 +38,14 @@ export default function Login() {
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-margin py-space-xl">
       <div className="w-full max-w-md bg-surface-container-lowest rounded-xl p-space-lg card-elevated">
-        <h1 className="font-display text-headline-md text-primary mb-1">Welcome back</h1>
+        <h1 className="font-display text-headline-md text-primary mb-1">{t('welcomeBack')}</h1>
         <p className="font-body-sm text-body-sm text-on-surface-variant mb-space-lg">
-          Log in to KAAM Nepal to apply, hire, or manage your gigs.
+          {t('loginIntro')}
         </p>
-
-        <div className="bg-surface-container-low rounded-lg p-space-sm mb-space-md font-body-sm text-body-sm text-on-surface-variant">
-          Demo accounts (after <code>seed_demo</code>): <br />
-          Employer — <strong>himalayan_treks</strong> / demo1234 <br />
-          Jobseeker — <strong>sita_gurung</strong> / demo1234
-        </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-space-md">
           <label className="flex flex-col gap-1">
-            <span className="font-display text-label-md text-on-surface-variant">Username</span>
+            <span className="font-display text-label-md text-on-surface-variant">{t('username')}</span>
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -51,7 +54,7 @@ export default function Login() {
             />
           </label>
           <label className="flex flex-col gap-1">
-            <span className="font-display text-label-md text-on-surface-variant">Password</span>
+            <span className="font-display text-label-md text-on-surface-variant">{t('password')}</span>
             <input
               type="password"
               value={password}
@@ -66,14 +69,14 @@ export default function Login() {
             disabled={loading}
             className="h-12 bg-primary-container text-on-primary rounded-lg font-display text-label-lg hover:bg-primary transition-colors disabled:opacity-60"
           >
-            {loading ? 'Logging in...' : 'Log In'}
+            {loading ? t('loggingIn') : t('logIn')}
           </button>
         </form>
 
         <p className="font-body-sm text-body-sm text-on-surface-variant mt-space-md text-center">
-          New to KAAM Nepal?{' '}
+          {t('newToKaam')}{' '}
           <Link to="/register" className="text-primary-container font-semibold hover:underline">
-            Create an account
+            {t('createAccount')}
           </Link>
         </p>
       </div>

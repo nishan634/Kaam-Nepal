@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { fetchMyApplications, fetchApplicationMessages, sendApplicationMessage } from '../api/endpoints'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 
 const stageLabels = {
   applied: 'Applied',
@@ -14,6 +15,7 @@ const stageLabels = {
 
 export default function MyApplications() {
   const { user } = useAuth()
+  const { t } = useLanguage()
   const [applications, setApplications] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedApplication, setSelectedApplication] = useState(null)
@@ -65,19 +67,19 @@ export default function MyApplications() {
   return (
     <div className="max-w-5xl mx-auto px-margin md:px-margin-md lg:px-margin-lg py-space-xl">
       <div className="mb-space-lg">
-        <h1 className="font-display text-headline-md text-primary">My Applications</h1>
+        <h1 className="font-display text-headline-md text-primary">{t('myApps')}</h1>
         <p className="font-body-sm text-body-sm text-on-surface-variant">
-          Track your applications and message employers through KAAM Nepal.
+          {t('trackApps')}
         </p>
       </div>
 
       {loading ? (
-        <p className="font-body-md text-on-surface-variant">Loading applications...</p>
+        <p className="font-body-md text-on-surface-variant">{t('loadingApps')}</p>
       ) : applications.length === 0 ? (
         <div className="bg-surface-container-lowest rounded-xl p-space-xl text-center card-elevated">
-          <p className="font-body-md text-on-surface-variant">You have not applied to any jobs yet.</p>
+          <p className="font-body-md text-on-surface-variant">{t('noApps')}</p>
           <Link to="/find-jobs" className="inline-flex mt-space-md px-space-md py-2.5 rounded-lg bg-primary-container text-on-primary font-display text-label-lg">
-            Find jobs
+            {t('findJobs')}
           </Link>
         </div>
       ) : (
@@ -95,8 +97,13 @@ export default function MyApplications() {
                     {job?.company_name || employer?.username || 'Employer'} · Applied {new Date(application.applied_at).toLocaleDateString()}
                   </p>
                   <span className="inline-flex mt-space-sm px-2.5 py-1 rounded-full bg-surface-container-low font-display text-label-sm text-on-surface-variant">
-                    {stageLabels[application.stage] || application.stage}
+                    {t(stageLabels[application.stage] || application.stage)}
                   </span>
+                  {application.rating?.review && (
+                    <p className="mt-space-sm max-w-xl font-body-sm text-body-sm text-on-surface-variant">
+                      <strong>Employer feedback:</strong> {application.rating.review}
+                    </p>
+                  )}
                 </div>
                 <button
                   type="button"
@@ -104,7 +111,7 @@ export default function MyApplications() {
                   className="inline-flex items-center justify-center gap-1.5 px-space-md py-2.5 rounded-lg bg-secondary text-on-secondary font-display text-label-md hover:bg-secondary-container transition-colors shrink-0"
                 >
                   <span className="material-symbols-outlined text-[18px]">chat</span>
-                  Chat with employer
+                  {t('chatEmployer')}
                 </button>
               </article>
             )
@@ -117,7 +124,7 @@ export default function MyApplications() {
           <section className="w-full max-w-lg bg-surface-container-lowest rounded-xl shadow-xl overflow-hidden">
             <div className="flex items-center justify-between p-space-md border-b border-outline-variant">
               <div>
-                <h2 className="font-display text-title-md text-primary">Employer chat</h2>
+                <h2 className="font-display text-title-md text-primary">{t('employerChat')}</h2>
                 <p className="font-body-sm text-body-sm text-on-surface-variant">
                   {selectedApplication.job_detail?.company_name || selectedApplication.job_detail?.employer_detail?.username || 'Employer'} · {selectedApplication.job_detail?.title}
                 </p>
@@ -147,11 +154,11 @@ export default function MyApplications() {
               <input
                 value={message}
                 onChange={(event) => setMessage(event.target.value)}
-                placeholder="Write a message..."
+                placeholder={t('writeMessage')}
                 className="flex-1 min-w-0 px-space-sm py-2 rounded-lg bg-surface-container-low outline-none focus:ring-2 focus:ring-primary"
               />
               <button type="submit" disabled={sending || !message.trim()} className="px-space-md rounded-lg bg-primary-container text-on-primary font-display text-label-md disabled:opacity-50">
-                {sending ? 'Sending...' : 'Send'}
+                {sending ? t('sending') : t('send')}
               </button>
             </form>
             {error && <p className="px-space-md pb-space-md font-body-sm text-error">{error}</p>}
