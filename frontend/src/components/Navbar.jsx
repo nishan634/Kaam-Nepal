@@ -72,7 +72,9 @@ export default function Navbar() {
                 type="button"
                 onClick={() => setMode(value)}
                 className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md font-display text-label-sm transition-colors ${
-                  mode === value ? 'bg-primary-container text-on-primary font-bold' : 'text-on-surface-variant hover:text-on-surface'
+                  mode === value
+                    ? 'bg-emerald-600 text-white font-bold shadow-sm'
+                    : 'bg-slate-200 text-slate-500 hover:bg-slate-300 hover:text-slate-700'
                 }`}
               >
                 <span className="material-symbols-outlined text-[16px]">{icon}</span>
