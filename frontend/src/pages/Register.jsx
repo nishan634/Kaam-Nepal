@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
+import { useMode } from '../context/ModeContext'
 
 export default function Register() {
   const { register } = useAuth()
   const { t } = useLanguage()
+  const { mode } = useMode()
   const navigate = useNavigate()
   const [form, setForm] = useState({
     username: '', email: '', password: '', first_name: '', last_name: '',
@@ -21,7 +23,7 @@ export default function Register() {
     setError('')
     setLoading(true)
     try {
-      const user = await register(form)
+      const user = await register({ ...form, role: mode })
       navigate(user.role === 'employer' ? '/employer/hub' : '/find-jobs')
     } catch (err) {
       const data = err.response?.data
@@ -50,27 +52,6 @@ export default function Register() {
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-space-md">
-          <div className="flex gap-space-sm">
-            {[
-              { value: 'jobseeker', label: 'Job Seeker / Freelancer', icon: 'person' },
-              { value: 'employer', label: 'Employer', icon: 'apartment' },
-            ].map((r) => (
-              <button
-                key={r.value}
-                type="button"
-                onClick={() => setForm({ ...form, role: r.value })}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-lg font-display text-label-md transition-colors ${
-                  form.role === r.value
-                    ? 'bg-primary-container text-on-primary'
-                    : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[18px]">{r.icon}</span>
-                {r.label}
-              </button>
-            ))}
-          </div>
-
           <div className="grid grid-cols-2 gap-space-md">
             <Field label={t('firstName')}>
               <input required value={form.first_name} onChange={update('first_name')} className="input" />

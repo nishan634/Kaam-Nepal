@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Job, Application, JobSeekerRating, ApplicationMessage
+from .models import Job, Application, JobSeekerRating, ApplicationMessage, JobNotification
 
 
 @admin.register(Job)
@@ -25,3 +25,10 @@ class JobSeekerRatingAdmin(admin.ModelAdmin):
 class ApplicationMessageAdmin(admin.ModelAdmin):
     list_display = ('application', 'sender', 'created_at')
     search_fields = ('body', 'sender__username')
+
+
+@admin.register(JobNotification)
+class JobNotificationAdmin(admin.ModelAdmin):
+    list_display = ('recipient', 'job', 'title', 'is_read', 'created_at')
+    list_filter = ('is_read',)
+    search_fields = ('recipient__username', 'job__title', 'message')

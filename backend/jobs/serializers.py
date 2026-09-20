@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from accounts.serializers import UserSerializer
-from .models import Job, Application, JobSeekerRating, ApplicationMessage
+from .models import Job, Application, JobSeekerRating, ApplicationMessage, JobNotification
 
 
 class JobSerializer(serializers.ModelSerializer):
@@ -24,6 +24,15 @@ class JobSerializer(serializers.ModelSerializer):
 
     def get_applicant_count(self, obj):
         return obj.applications.count()
+
+
+class JobNotificationSerializer(serializers.ModelSerializer):
+    job_title = serializers.CharField(source='job.title', read_only=True)
+
+    class Meta:
+        model = JobNotification
+        fields = ['id', 'job', 'job_title', 'title', 'message', 'is_read', 'created_at']
+        read_only_fields = ['id', 'job', 'job_title', 'title', 'message', 'created_at']
 
 
 class ApplicationSerializer(serializers.ModelSerializer):

@@ -3,8 +3,9 @@ from rest_framework import viewsets, permissions, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import Job, Application, JobSeekerRating, ApplicationMessage
-from .serializers import JobSerializer, ApplicationSerializer, JobSeekerRatingSerializer, ApplicationMessageSerializer
+from accounts.models import User
+from .models import Job, Application, JobSeekerRating, ApplicationMessage, JobNotification
+from .serializers import JobSerializer, ApplicationSerializer, JobSeekerRatingSerializer, ApplicationMessageSerializer, JobNotificationSerializer
 
 
 class IsEmployerOrReadOnly(permissions.BasePermission):
@@ -36,7 +37,17 @@ class JobViewSet(viewsets.ModelViewSet):
         return qs.filter(status=Job.Status.OPEN)
 
     def perform_create(self, serializer):
-        serializer.save(employer=self.request.user)
+        job = serializer.save(employer=self.request.user)
+        jobseekers = User.objects.filter(role=User.Role.JOBSEEKER).values_list('id', flat=True)
+        JobNotification.objects.bulk_create([
+            JobNotification(
+                recipient_id=jobseeker_id,
+                job=job,
+                title='New job posted',
+                message=f'{job.title} is now available in {job.location_address or job.district}.',
+            )
+            for jobseeker_id in jobseekers
+        ])
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def apply(self, request, pk=None):
@@ -118,3 +129,21 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         message = serializer.save(application=application, sender=request.user)
         return Response(ApplicationMessageSerializer(message).data, status=status.HTTP_201_CREATED)
+
+
+class JobNotificationViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = JobNotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'post', 'head', 'options']
+
+    def get_queryset(self):
+        if self.request.user.role != 'jobseeker':
+            return JobNotification.objects.none()
+        return JobNotification.objects.filter(recipient=self.request.user).select_related('job')
+
+    @action(detail=True, methods=['post'])
+    def mark_read(self, request, pk=None):
+        notification = self.get_object()
+        notification.is_read = True
+        notification.save(update_fields=['is_read'])
+        return Response(JobNotificationSerializer(notification).data)
