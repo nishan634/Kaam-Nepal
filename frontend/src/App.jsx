@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { LanguageProvider } from './context/LanguageContext'
+import { ModeProvider } from './context/ModeContext'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -21,7 +22,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <LanguageProvider>
-        <AuthProvider>
+        <ModeProvider>
+          <AuthProvider>
           <div className="min-h-screen flex flex-col bg-surface">
           <Navbar />
           <main className="flex-1 w-full pt-20">
@@ -69,7 +71,8 @@ export default function App() {
           </main>
           <Footer />
           </div>
-        </AuthProvider>
+          </AuthProvider>
+        </ModeProvider>
       </LanguageProvider>
     </BrowserRouter>
   )

@@ -4,6 +4,7 @@ import { fetchJobs, fetchGigs } from '../api/endpoints'
 import JobCard from '../components/JobCard'
 import GigCard from '../components/GigCard'
 import { useLanguage } from '../context/LanguageContext'
+import { useMode } from '../context/ModeContext'
 
 const categories = [
   { key: 'trade', label: 'Skilled Trades', icon: 'construction' },
@@ -18,6 +19,7 @@ export default function Home() {
   const [gigs, setGigs] = useState([])
   const [query, setQuery] = useState('')
   const { t } = useLanguage()
+  const { mode } = useMode()
 
   useEffect(() => {
     fetchJobs({ ordering: '-created_at' })
@@ -70,10 +72,10 @@ export default function Home() {
               />
             </div>
             <Link
-              to={`/find-jobs?search=${encodeURIComponent(query)}`}
+              to={mode === 'employer' ? '/employer/post-job' : `/find-jobs?search=${encodeURIComponent(query)}`}
               className="h-12 px-space-lg w-full sm:w-auto flex items-center justify-center gap-1 bg-primary-container text-on-primary rounded-lg font-display text-label-lg shadow-sm hover:bg-primary transition-colors"
             >
-              {t('searchJobs')}
+              {mode === 'employer' ? t('postJob') : t('searchJobs')}
               <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
             </Link>
           </form>

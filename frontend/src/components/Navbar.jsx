@@ -2,6 +2,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
+import { useMode } from '../context/ModeContext'
 
 const navLinkClass = ({ isActive }) =>
   `font-display text-label-lg py-1.5 px-2 transition-colors ${
@@ -13,6 +14,7 @@ const navLinkClass = ({ isActive }) =>
 export default function Navbar() {
   const { user, logout } = useAuth()
   const { language, setLanguage, t } = useLanguage()
+  const { mode, setMode } = useMode()
   const navigate = useNavigate()
   const [lang, setLang] = useState('EN')
 
@@ -47,12 +49,12 @@ export default function Navbar() {
           <NavLink to="/freelance" className={navLinkClass}>
             {t('freelance')}
           </NavLink>
-          {user?.role === 'employer' && (
+          {mode === 'employer' && (
             <NavLink to="/employer/hub" className={navLinkClass}>
               {t('hiringHub')}
             </NavLink>
           )}
-          {user?.role === 'jobseeker' && (
+          {mode === 'jobseeker' && (
             <NavLink to="/my-applications" className={navLinkClass}>
               {t('myApplications')}
             </NavLink>
@@ -60,6 +62,24 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-space-md">
+          <div className="hidden md:inline-flex items-center bg-surface-container-low p-1 rounded-lg">
+            {[
+              ['jobseeker', t('jobSeekerMode'), 'person'],
+              ['employer', t('employerMode'), 'business_center'],
+            ].map(([value, label, icon]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setMode(value)}
+                className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md font-display text-label-sm transition-colors ${
+                  mode === value ? 'bg-primary-container text-on-primary font-bold' : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[16px]">{icon}</span>
+                {label}
+              </button>
+            ))}
+          </div>
           <div className="hidden md:inline-flex items-center bg-surface-container-low p-1 rounded-full">
             {[['en', 'EN'], ['ne', 'नेपाली']].map(([value, label]) => (
               <button
@@ -77,7 +97,7 @@ export default function Navbar() {
             ))}
           </div>
 
-          {user?.role === 'employer' && (
+          {mode === 'employer' && (
             <Link
               to="/employer/post-job"
               className="hidden sm:inline-flex items-center justify-center font-display text-label-lg bg-secondary text-on-secondary px-space-md py-2.5 rounded-lg shadow-[0_2px_8px_-2px_rgba(183,16,42,0.4)] hover:bg-secondary-container transition-colors"
