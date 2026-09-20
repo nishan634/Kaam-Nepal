@@ -68,11 +68,11 @@ ASGI_APPLICATION = 'kaam_backend.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'kaam_nepal',
-        'USER': 'root',
-        'PASSWORD': 'Nishan123',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT', default='3306'),
     }
 }
 AUTH_USER_MODEL = 'accounts.User'
