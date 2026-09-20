@@ -18,6 +18,15 @@ const jobTypeLabels = {
   remote: 'Remote',
 }
 
+const sectorVisuals = {
+  trade: { icon: 'construction', classes: 'bg-orange-100 text-orange-700' },
+  tech: { icon: 'computer', classes: 'bg-sky-100 text-sky-700' },
+  hospitality: { icon: 'restaurant', classes: 'bg-rose-100 text-rose-700' },
+  logistics: { icon: 'local_shipping', classes: 'bg-amber-100 text-amber-700' },
+  health: { icon: 'medical_services', classes: 'bg-emerald-100 text-emerald-700' },
+  other: { icon: 'work', classes: 'bg-violet-100 text-violet-700' },
+}
+
 function formatSalary(job) {
   if (!job.salary_min && !job.salary_max) return 'Negotiable'
   const period = { hourly: '/hr', daily: '/day', monthly: '/mo', fixed: ' fixed' }[job.salary_period] || ''
@@ -31,6 +40,7 @@ export default function JobCard({ job }) {
   const { t } = useLanguage()
   const translatedSectors = { trade: 'skilledTrades', tech: 'techRemote', hospitality: 'hospitality', logistics: 'logistics', health: 'healthcare', other: 'other' }
   const translatedTypes = { full_time: 'fullTime', part_time: 'partTime', daily_wage: 'dailyWage', contract: 'contract', remote: 'remote' }
+  const sectorVisual = sectorVisuals[job.sector] || sectorVisuals.other
   return (
     <Link
       to={`/jobs/${job.id}`}
@@ -38,8 +48,8 @@ export default function JobCard({ job }) {
     >
       <div className="flex items-start justify-between gap-space-md">
         <div className="flex items-start gap-space-sm">
-          <div className="w-12 h-12 rounded-lg bg-primary-container flex items-center justify-center text-on-primary font-display font-bold text-lg shrink-0">
-            {(job.company_name || job.employer_detail?.username || 'K')[0].toUpperCase()}
+          <div className={`w-12 h-12 rounded-lg flex items-center justify-center shrink-0 ${sectorVisual.classes}`}>
+            <span className="material-symbols-outlined text-[25px]">{sectorVisual.icon}</span>
           </div>
           <div>
             <h3 className="font-display text-title-md font-bold text-on-surface leading-tight">{job.title}</h3>

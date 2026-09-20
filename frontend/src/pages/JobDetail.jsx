@@ -75,14 +75,14 @@ export default function JobDetail() {
             <>
               <div className="overflow-hidden rounded-lg border border-outline-variant aspect-[16/9]">
                 <iframe
-                  title="Job location map"
+                  title="Google Maps job location"
                   className="w-full h-full border-0"
                   loading="lazy"
-                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(job.longitude) - 0.02}%2C${Number(job.latitude) - 0.02}%2C${Number(job.longitude) + 0.02}%2C${Number(job.latitude) + 0.02}&layer=mapnik&marker=${job.latitude}%2C${job.longitude}`}
+                  src={`https://www.google.com/maps?q=${job.latitude},${job.longitude}&z=15&output=embed`}
                 />
               </div>
               <a
-                href={`https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=%3B${job.latitude}%2C${job.longitude}`}
+                href={`https://www.google.com/maps/dir/?api=1&destination=${job.latitude},${job.longitude}`}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center mt-space-sm text-primary-container font-display text-label-md hover:underline"
